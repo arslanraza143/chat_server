@@ -22,13 +22,29 @@ const io = require('socket.io')(server,
 )
 
 //mongoos
+// mongoos
 const mongoose = require("mongoose");
 
-// Use Railway environment variable for MongoDB connection
-mongoose.connect(process.env.MONGO_URI, {
+const uri = process.env.MONGO_URI;
+
+// Show the URI during Railway deployment (for debugging only)
+console.log("MONGO_URI:", uri);
+
+if (!uri) {
+  console.error("❌ MONGO_URI is undefined! Please set it in Railway → Variables tab.");
+  process.exit(1); // Stop the app
+}
+
+mongoose.connect(uri, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
+})
+.then(() => console.log("✅ MongoDB Connected"))
+.catch((err) => {
+  console.error("❌ MongoDB connection error:", err.message);
+  process.exit(1);
 });
+
 
 const db = mongoose.connection;
 db.on("error", console.error.bind(console, "MongoDB connection error:"));
